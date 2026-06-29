@@ -76,7 +76,8 @@
     <button onclick="go('screen-design')">4. Design</button>
     <button onclick="go('screen-uat')">5. UAT</button>
     <button onclick="go('screen-vault')">6. Vault</button>
-    <button onclick="go('screen-closure')">7. Closure / AMC</button>
+    <button onclick="go('screen-crm')">7. CRM sync</button>
+    <button onclick="go('screen-closure')">8. Closure / AMC</button>
   </div>
 
   <!-- SCREEN 1: Website Lead Form -->
@@ -142,13 +143,15 @@
     <p class="sub">Lead detail. Log the initial call, then convert when the client approves the proposal.</p>
     <div class="panel">
       <h2>Initial call notes</h2>
+      <div class="note">🔗 Matched against CRM — no existing contact found. A new Contact + Deal will be created in CRM, not stored separately in SPTS.</div>
+      <br>
       <textarea rows="3">Spoke 12 Jun. Needs inventory sync across 3 stores + billing. Budget approved internally, wants timeline by next week.</textarea>
       <label>Proposal cost & timeline</label>
       <div class="row">
         <div><input value="₹4,80,000"></div>
         <div><input value="10 weeks"></div>
       </div>
-      <div class="note">Proposal sent — client approved on call. Ready to convert to a project.</div>
+      <div class="note">Proposal sent — client approved via CRM. Ready to convert to a project.</div>
       <br>
       <button class="btn-primary" onclick="convertLead()">Convert to Project</button>
       <button class="btn-ghost" onclick="go('screen-leads')">← Back to leads</button>
@@ -244,6 +247,7 @@
       <h2>Project info & access</h2>
       <p class="sub" style="margin-bottom:10px;">Shared by client and used by every team — not just dev.</p>
       <button class="btn-ghost" onclick="go('screen-vault')">Open project vault →</button>
+      <button class="btn-ghost" onclick="go('screen-crm')">View CRM sync →</button>
       <button class="btn-ghost" onclick="go('screen-closure')">Preview closure &amp; AMC →</button>
     </div>
     <div class="panel">
@@ -268,16 +272,17 @@
   <!-- SCREEN 7: Figma review -->
   <div class="screen" id="screen-figma">
     <h1>Client reviews design</h1>
-    <p class="sub">Client gets a notification and opens the Figma file. Every comment and review round is logged against the milestone.</p>
-    <div class="panel">
-      <h2>Figma — Inventory module</h2>
+    <p class="sub">Client gets notified and reviews from <strong>inside the CRM client portal</strong> — not a separate SPTS login. SPTS just receives the result back.</p>
+    <div class="panel" style="border:1px solid var(--accent);">
+      <span class="badge-hc" style="background:#2E5FA3;">⬡ CRM client portal — Anita Rao</span>
+      <h2 style="margin-top:14px;">Figma — Inventory module</h2>
       <div class="note">💬 "Can the stock count be bigger on the dashboard card?" — Anita Rao, round 1</div>
       <div class="note">💬 "Looks good otherwise, approving once that's fixed." — Anita Rao, round 1</div>
       <p class="sub" style="margin:14px 0 0;">Iteration count: <strong id="figmaCount">1</strong> round</p>
     </div>
     <button class="btn-ghost" onclick="bumpFigma()">+ Simulate another comment round</button>
     <br><br>
-    <button class="btn-primary" onclick="go('screen-devqa')">Client approves design</button>
+    <button class="btn-primary" onclick="go('screen-devqa')">Client approves design (via CRM)</button>
     <button class="btn-ghost" onclick="go('screen-design')">← Back</button>
   </div>
 
@@ -296,9 +301,10 @@
   <!-- SCREEN 9: UAT -->
   <div class="screen" id="screen-uat">
     <h1>Milestone 1 — Client UAT</h1>
-    <p class="sub">Client tests the milestone and reports back. Every item they raise is logged, tagged, and tracked — nothing is informal.</p>
-    <div class="panel">
-      <h2>Client feedback</h2>
+    <p class="sub">Client tests and reports back <strong>through the CRM portal</strong>. SPTS/Hancod ONE picks it up from there — client never needs a separate login.</p>
+    <div class="panel" style="border:1px solid var(--accent);">
+      <span class="badge-hc" style="background:#2E5FA3;">⬡ CRM client portal — Anita Rao</span>
+      <h2 style="margin-top:14px;">Client feedback</h2>
       <div class="row" style="margin-bottom:0;">
         <div><label>Type</label><select id="uatType"><option>Bug</option><option>Enhancement</option><option>CR (Change Request)</option></select></div>
         <div><label>Note</label><input id="uatNote" value="Stock count doesn't refresh after a sale"></div>
@@ -306,7 +312,7 @@
       <button class="btn-ghost" onclick="addUat()">+ Add to list</button>
       <div id="uatList" style="margin-top:14px;"></div>
     </div>
-    <button class="btn-primary" onclick="go('screen-bugs')">Submit UAT feedback</button>
+    <button class="btn-primary" onclick="go('screen-bugs')">Submit UAT feedback (from CRM)</button>
     <button class="btn-ghost" onclick="go('screen-devqa')">← Back</button>
   </div>
 
@@ -321,15 +327,16 @@
 
   <!-- SCREEN 11: Milestone payment & approval -->
   <div class="screen" id="screen-m1pay">
-    <div class="panel" style="text-align:center;padding:40px 24px;">
-      <h1>Milestone 1 — Client approval & payment</h1>
-      <p class="sub">The gate that controls everything: no payment, no move to Milestone 2.</p>
+    <div class="panel" style="text-align:center;padding:40px 24px;border:1px solid var(--accent);">
+      <span class="badge-hc" style="background:#2E5FA3;">⬡ CRM client portal — Anita Rao</span>
+      <h1 style="margin-top:16px;">Milestone 1 — Client approval & payment</h1>
+      <p class="sub">Approval and payment both happen inside the CRM — that's where invoicing already lives. SPTS just listens for the result.</p>
       <div style="display:flex;gap:14px;justify-content:center;margin:24px 0;">
-        <span class="tag tag-sync">✓ Client approved Milestone 1</span>
-        <span class="tag tag-sync">✓ Payment received</span>
+        <span class="tag tag-sync">✓ Approved in CRM</span>
+        <span class="tag tag-sync">✓ Payment captured in CRM</span>
       </div>
       <div class="note" style="text-align:left;max-width:480px;margin:0 auto;">
-        Milestone 2 unlocks automatically. Documentation → Design → Dev/QA → UAT → Bug fix → Approval + Payment repeats identically for every milestone.
+        CRM sends SPTS/Hancod ONE a "Milestone 1 — approved & paid" event. Milestone 2 unlocks automatically. Same CRM-portal pattern repeats for every milestone: client never approves or pays inside SPTS directly.
       </div>
       <br>
       <button class="btn-primary" onclick="go('screen-project')">Back to project — Milestone 2 unlocked</button>
@@ -377,6 +384,36 @@
     <button class="btn-ghost" onclick="go('screen-project')">← Back to project</button>
   </div>
 
+  <!-- SCREEN 14: CRM sync -->
+  <div class="screen" id="screen-crm">
+    <h1>CRM — Client tracking</h1>
+    <p class="sub">CRM is the <strong>source of truth for the client</strong> and the place the client actually acts — approving documents, milestones, and paying. SPTS/Hancod ONE stays the internal delivery engine and just listens for these events back.</p>
+    <div class="panel">
+      <h2>Contact / Deal — Anita Rao, Northbridge Retail</h2>
+      <div class="row" style="margin-bottom:14px;">
+        <div><label>Deal stage</label><div class="tag tag-active" style="display:block;text-align:center;padding:8px;">Active Client</div></div>
+        <div><label>Lifetime value</label><div class="tag tag-sync" style="display:block;text-align:center;padding:8px;">₹4,80,000</div></div>
+      </div>
+      <h2 style="margin-top:18px;">Stage history</h2>
+      <div class="milestone"><div class="m-name">🟡 New Lead</div><div class="m-sub">Website form submitted</div></div>
+      <div class="milestone"><div class="m-name">🟠 Proposal Sent</div><div class="m-sub">₹4,80,000 · 10 weeks</div></div>
+      <div class="milestone"><div class="m-name">🟢 Converted — Won</div><div class="m-sub">Project division created in Hancod ONE</div></div>
+      <div class="milestone"><div class="m-name">🔵 Active Client</div><div class="m-sub">Milestone 1 approved & paid</div></div>
+    </div>
+    <div class="panel">
+      <h2>Activity timeline (auto-logged)</h2>
+      <div class="note">📞 Initial call logged — 12 Jun</div>
+      <div class="note">📄 Proposal sent — 14 Jun</div>
+      <div class="note">✅ Converted to project — 15 Jun</div>
+      <div class="note">🎨 Design approved by client — 18 Jun (1 comment round)</div>
+      <div class="note">🐞 1 bug reported in UAT, resolved — 24 Jun</div>
+      <div class="note">💰 Milestone 1 payment received — 25 Jun</div>
+    </div>
+    <div class="note">Direction matters: client identity, approvals, and payments live and happen in CRM. SPTS/Hancod ONE reads those events and drives the internal delivery work — it never asks the client to approve or pay inside SPTS directly.</div>
+    <br>
+    <button class="btn-ghost" onclick="go('screen-project')">← Back to project</button>
+  </div>
+
   <div class="footer-link">Clickable mockup · no live data or backend connected</div>
 </div>
 
@@ -400,6 +437,7 @@ function go(id){
     'screen-bugs':'…→ M1 → Bug/CR tracking',
     'screen-m1pay':'…→ M1 → Approval & payment',
     'screen-vault':'SPTS → Projects → Northbridge Retail → Vault',
+    'screen-crm':'SPTS → Projects → Northbridge Retail → CRM sync',
     'screen-closure':'SPTS → Projects → Northbridge Retail → Closure / AMC'
   };
   document.getElementById('crumbs').textContent = labels[id] || '';
