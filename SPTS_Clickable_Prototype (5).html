@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SPTS Prototype</title>
+<style>
+  :root{
+    --ink:#15202B; --ink-soft:#4A5A68; --paper:#F6F7F9; --card:#FFFFFF;
+    --line:#E1E5EA; --accent:#2F6F4E; --accent-soft:#E6F1EA;
+    --amber:#B6791E; --amber-soft:#FBF0DE;
+    --mono:'SF Mono','JetBrains Mono',Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Segoe UI',Inter,system-ui,sans-serif;background:var(--paper);color:var(--ink);}
+  .app{max-width:920px;margin:0 auto;padding:28px 24px 80px;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .quicknav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px;}
+  .quicknav button{background:var(--card);border:1px solid var(--line);color:var(--ink-soft);font-size:12px;font-weight:600;padding:6px 10px;border-radius:6px;}
+  .quicknav button:hover{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px;}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);}
+  .crumbs{font-size:13px;color:var(--ink-soft);font-family:var(--mono);}
+  .crumbs span{color:var(--accent);}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:16px;}
+  h1{font-size:22px;margin:0 0 4px;}
+  h2{font-size:15px;margin:0 0 14px;color:var(--ink-soft);font-weight:600;text-transform:uppercase;letter-spacing:.6px;}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 22px;}
+  label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
+  input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:7px;font-size:14px;margin-bottom:16px;font-family:inherit;color:var(--ink);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  button{cursor:pointer;border:none;border-radius:7px;font-weight:600;font-size:14px;padding:11px 18px;font-family:inherit;}
+  .btn-primary{background:var(--ink);color:#fff;}
+  .btn-primary:hover{background:#0c141c;}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink);}
+  .btn-ghost:hover{background:var(--paper);}
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft);padding:8px 10px;border-bottom:1px solid var(--line);}
+  td{padding:12px 10px;border-bottom:1px solid var(--line);}
+  tr.clickable:hover{background:var(--paper);cursor:pointer;}
+  .tag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:600;}
+  .tag-new{background:var(--amber-soft);color:var(--amber);}
+  .tag-active{background:var(--accent-soft);color:var(--accent);}
+  .tag-sync{background:#EAF1FB;color:#2E5FA3;}
+  .topactions{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+  .badge-hc{display:inline-flex;align-items:center;gap:6px;background:#1A2733;color:#fff;font-size:12px;font-weight:600;padding:5px 10px;border-radius:6px;font-family:var(--mono);}
+  .stepline{display:flex;align-items:center;gap:8px;margin-bottom:20px;font-size:13px;color:var(--ink-soft);}
+  .stepline .seg{display:flex;align-items:center;gap:6px;}
+  .stepline .seg.active{color:var(--ink);font-weight:700;}
+  .stepline .arrow{color:var(--line);}
+  .milestone{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line);}
+  .milestone:last-child{border-bottom:none;}
+  .m-name{font-weight:600;font-size:14px;}
+  .m-sub{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .bar{width:140px;height:6px;background:var(--line);border-radius:4px;overflow:hidden;}
+  .bar span{display:block;height:100%;background:var(--accent);}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;}
+  .toast.show{opacity:1;}
+  .note{font-size:12px;color:var(--ink-soft);background:var(--paper);border:1px dashed var(--line);padding:10px 12px;border-radius:7px;margin-top:6px;}
+  .screen{display:none;}
+  .screen.active{display:block;}
+  .footer-link{font-size:12px;color:var(--ink-soft);text-align:center;margin-top:30px;}
+  .crm-shell{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card);min-height:560px;margin-bottom:16px;}
+  .crm-sidebar{width:190px;background:#16202B;color:#C7D2DB;padding:18px 0;flex-shrink:0;}
+  .crm-sidebar .grp-label{font-size:11px;letter-spacing:.6px;color:#6B7E8E;padding:14px 18px 6px;text-transform:uppercase;}
+  .crm-sidebar .item{display:flex;align-items:center;gap:10px;padding:9px 18px;font-size:13px;cursor:pointer;}
+  .crm-sidebar .item.active{background:#22303D;color:#fff;border-right:3px solid var(--accent);font-weight:600;}
+  .crm-sidebar .item .ic{width:16px;text-align:center;opacity:.8;}
+  .crm-sidebar .badge-count{background:#3D6FD9;color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:auto;}
+  .crm-main{flex:1;padding:22px 26px;background:#FAFBFC;}
+  .crm-topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+  .crm-topline h2{margin:0;font-size:18px;color:var(--ink);text-transform:none;letter-spacing:0;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span> SPTS Prototype</div>
+    <div class="crumbs" id="crumbs">Website <span>→</span> Lead Capture</div>
+  </div>
+
+  <div class="quicknav">
+    <button onclick="go('screen-customers')">1. Customers</button>
+    <button onclick="go('screen-add-client')">2. Add client</button>
+    <button onclick="go('screen-proposal')">3. Proposal</button>
+    <button onclick="go('screen-approval')">4. Approval</button>
+    <button onclick="go('screen-project')">5. Project</button>
+    <button onclick="go('screen-design')">6. Design</button>
+    <button onclick="go('screen-uat')">7. UAT</button>
+    <button onclick="go('screen-vault')">8. Vault</button>
+    <button onclick="go('screen-crm')">9. CRM activity log</button>
+    <button onclick="go('screen-closure')">10. Closure / AMC</button>
+  </div>
+
+  <!-- SCREEN 1: CRM Customers -->
+  <div class="screen active" id="screen-customers">
+    <div class="topactions">
+      <h1 style="margin:0;">Customers</h1>
+      <span class="badge-hc">⬡ CRM</span>
+    </div>
+    <p class="sub">Every client lives here first. Nothing is created in Hancod ONE until a proposal is approved.</p>
+    <div class="panel" style="padding:0;">
+      <table>
+        <tr><th>Client</th><th>Requirement</th><th>Stage</th><th></th></tr>
+        <tr class="clickable" onclick="go('screen-proposal')">
+          <td><strong>Anita Rao</strong><br><span style="color:var(--ink-soft);font-size:12px;">Northbridge Retail</span></td>
+          <td>Inventory + billing system</td>
+          <td><span class="tag tag-new">New Lead</span></td>
+          <td>→</td>
+        </tr>
+        <tr>
+          <td><strong>Mathew Joseph</strong><br><span style="color:var(--ink-soft);font-size:12px;">Coastal Logistics</span></td>
+          <td>Fleet tracking dashboard</td>
+          <td><span class="tag tag-active">Proposal Sent</span></td>
+          <td>→</td>
+        </tr>
+        <tr>
+          <td><strong>Diya Pillai</strong><br><span style="color:var(--ink-soft);font-size:12px;">Bloom Spa Chain</span></td>
+          <td>Appointment booking app</td>
+          <td><span class="tag tag-sync">Active Client</span></td>
+          <td>→</td>
+        </tr>
+      </table>
+    </div>
+    <button class="btn-ghost" onclick="go('screen-add-client')">+ Add client</button>
+  </div>
+
+  <!-- SCREEN 1b: Add client -->
+  <div class="screen" id="screen-add-client">
+    <h1>Add a new client</h1>
+    <p class="sub">Client record is created directly inside the CRM — this is where everything starts.</p>
+    <div class="panel">
+      <div class="row">
+        <div><label>Name</label><input value="Anita Rao"></div>
+        <div><label>Company</label><input value="Northbridge Retail"></div>
+      </div>
+      <div class="row">
+        <div><label>Email</label><input value="anita@northbridge.co"></div>
+        <div><label>Phone</label><input value="+91 98765 43210"></div>
+      </div>
+      <label>Requirement</label>
+      <textarea rows="3">Need an inventory + billing system for our 3 retail stores.</textarea>
+      <label>Source</label>
+      <select><option>Referral</option><option>Inbound call</option><option>Website</option><option>Other</option></select>
+      <button class="btn-primary" onclick="go('screen-proposal')">Save client &amp; create proposal</button>
+      <button class="btn-ghost" onclick="go('screen-customers')">← Back</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: Create proposal -->
+  <div class="screen" id="screen-proposal">
+    <h1>Anita Rao — Northbridge Retail</h1>
+    <p class="sub">Proposal is built and shared directly from the CRM.</p>
+    <div class="panel">
+      <h2>Proposal</h2>
+      <div class="row">
+        <div><label>Scope summary</label><input value="Inventory + billing system, 3 stores"></div>
+        <div><label>Cost</label><input value="₹4,80,000"></div>
+      </div>
+      <div class="row">
+        <div><label>Timeline</label><input value="10 weeks"></div>
+        <div><label>Valid until</label><input value="20 Jul 2026"></div>
+      </div>
+      <button class="btn-primary" onclick="go('screen-approval')">Share proposal with client</button>
+      <button class="btn-ghost" onclick="go('screen-add-client')">← Back</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: Client approval -->
+  <div class="screen" id="screen-approval">
+    <h1>Proposal shared — awaiting client</h1>
+    <p class="sub">Client reviews and approves the proposal directly in the CRM — no separate system.</p>
+    <div class="panel">
+      <div class="milestone"><div><div class="m-name">📨 Proposal sent</div><div class="m-sub">To anita@northbridge.co</div></div><span class="tag tag-sync">Sent</span></div>
+      <div class="milestone"><div><div class="m-name">✅ Client approval</div><div class="m-sub">Anita Rao approved — ₹4,80,000 / 10 weeks</div></div><span class="tag tag-active">Approved</span></div>
+    </div>
+    <button class="btn-primary" onclick="convertLead()">Convert to Project</button>
+    <button class="btn-ghost" onclick="go('screen-proposal')">← Back</button>
+  </div>
+
+  <!-- SCREEN 4: Conversion confirmation -->
+  <div class="screen" id="screen-convert">
+    <div class="panel" style="text-align:center;padding:40px 24px;">
+      <h1>Project created</h1>
+      <p class="sub">A matching project space was created automatically. This is the one moment SPTS talks to your existing tools.</p>
+      <div style="display:flex;gap:14px;justify-content:center;margin:24px 0;">
+        <span class="tag tag-sync">✓ Hancod ONE division created</span>
+        <span class="tag tag-sync">✓ First task auto-assigned</span>
+      </div>
+      <div class="note" style="text-align:left;max-width:480px;margin:0 auto;">
+        SPTS calls the Hancod ONE API to create a new project division — "Northbridge Retail — Inventory & Billing" — with its own task list. Creating the division automatically triggers the first task.
+      </div>
+      <br><br>
+      <button class="btn-primary" onclick="go('screen-autotask')">See what happens next</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 4b: Auto-assigned first task -->
+  <div class="screen" id="screen-autotask">
+    <h1>Northbridge Retail — new division created</h1>
+    <p class="sub">The moment the project division is created in Hancod ONE, the system auto-creates and assigns the first task. No one has to remember to kick this off.</p>
+    <div class="panel">
+      <h2>Auto-created task</h2>
+      <div class="milestone">
+        <div>
+          <div class="m-name">📄 Documentation</div>
+          <div class="m-sub">Auto-assigned to: <strong>BA Team — Priya S.</strong></div>
+        </div>
+        <span class="tag tag-new">Assigned</span>
+      </div>
+      <div class="note">Trigger: Project division created → Task "Documentation" auto-created → Assigned to BA → Google Chat notification sent.</div>
+    </div>
+    <div class="panel" style="background:#1A2733;border:none;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <span style="font-size:18px;">💬</span>
+        <strong style="color:#fff;font-size:13px;">Google Chat — #ba-team</strong>
+      </div>
+      <div style="background:#243341;color:#E7ECF1;padding:12px 14px;border-radius:8px;font-size:13px;line-height:1.5;">
+        <strong>Hancod ONE Bot</strong><br>
+        New task assigned to <strong>Priya S.</strong>: "Documentation" — Northbridge Retail<br>
+        <span style="color:#9FB3C2;font-size:12px;">Just now</span>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>When Priya marks it done</h2>
+      <label style="display:flex;align-items:center;gap:8px;font-weight:400;text-transform:none;font-size:13px;color:var(--ink-soft);">
+        <input type="checkbox" id="notifyClient" style="width:auto;margin:0;"> Also notify client when this task is completed (optional, off by default)
+      </label>
+      <br>
+      <button class="btn-primary" onclick="completeTask()">Mark "Documentation" as done</button>
+      <button class="btn-ghost" onclick="go('screen-convert')">← Back</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: Project / Delivery dashboard -->
+  <div class="screen" id="screen-project">
+    <div class="topactions">
+      <h1 style="margin:0;">Northbridge Retail</h1>
+      <span class="badge-hc">⬡ Hancod ONE division active</span>
+    </div>
+    <div class="stepline">
+      <span class="seg">Lead</span><span class="arrow">→</span>
+      <span class="seg">Proposal</span><span class="arrow">→</span>
+      <span class="seg active">Delivery</span><span class="arrow">→</span>
+      <span class="seg">Closed</span>
+    </div>
+    <div class="panel">
+      <h2>Milestones</h2>
+      <div class="milestone">
+        <div><div class="m-name">📄 Documentation</div><div class="m-sub" id="docStatus">Approved by client · synced from Hancod ONE</div></div>
+        <span class="tag tag-active" id="docTag">Approved</span>
+      </div>
+      <div class="milestone clickable" onclick="go('screen-design')" style="cursor:pointer;">
+        <div><div class="m-name">M1 · Inventory module setup</div><div class="m-sub">Design phase →</div></div>
+        <span class="tag tag-new">Open →</span>
+      </div>
+      <div class="milestone">
+        <div><div class="m-name">M2 · Billing & invoicing</div><div class="m-sub">Waiting on M1</div></div>
+        <div class="bar"><span style="width:0%"></span></div>
+      </div>
+      <div class="milestone">
+        <div><div class="m-name">M3 · Multi-store sync</div><div class="m-sub">Waiting on M1</div></div>
+        <div class="bar"><span style="width:0%"></span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Project info & access</h2>
+      <p class="sub" style="margin-bottom:10px;">Shared by client and used by every team — not just dev.</p>
+      <button class="btn-ghost" onclick="go('screen-vault')">Open project vault →</button>
+      <button class="btn-ghost" onclick="go('screen-crm')">View CRM sync →</button>
+      <button class="btn-ghost" onclick="go('screen-closure')">Preview closure &amp; AMC →</button>
+    </div>
+    <div class="panel">
+      <h2>What the client sees</h2>
+      <p class="sub" style="margin-bottom:0;">A read-only version of this same screen, with a button to approve a milestone and confirm payment once it's marked ready for review. No Hancod ONE login is ever shared with the client.</p>
+    </div>
+    <button class="btn-ghost" onclick="go('screen-customers')">← Back to customers</button>
+  </div>
+
+  <!-- SCREEN 6: Design -->
+  <div class="screen" id="screen-design">
+    <h1>M1 · Inventory module setup — Design</h1>
+    <p class="sub">UI/UX team works the task in Hancod ONE. Client sees progress only — no action needed yet.</p>
+    <div class="panel">
+      <div class="milestone"><div><div class="m-name">🎨 Design</div><div class="m-sub">In progress · 2 of 6 screens done</div></div><div class="bar"><span style="width:35%"></span></div></div>
+      <div class="note">Once the UI/UX team marks design complete, the client is auto-notified to review.</div>
+    </div>
+    <button class="btn-primary" onclick="go('screen-figma')">Mark design complete &amp; notify client</button>
+    <button class="btn-ghost" onclick="go('screen-project')">← Back</button>
+  </div>
+
+  <!-- SCREEN 7: Figma review -->
+  <div class="screen" id="screen-figma">
+    <h1>Client reviews design</h1>
+    <p class="sub">Client gets notified and reviews from <strong>inside the CRM client portal</strong> — not a separate SPTS login. SPTS just receives the result back.</p>
+    <div class="panel" style="border:1px solid var(--accent);">
+      <span class="badge-hc" style="background:#2E5FA3;">⬡ In-house CRM — client portal — Anita Rao</span>
+      <h2 style="margin-top:14px;">Figma — Inventory module</h2>
+      <div class="note">💬 "Can the stock count be bigger on the dashboard card?" — Anita Rao, round 1</div>
+      <div class="note">💬 "Looks good otherwise, approving once that's fixed." — Anita Rao, round 1</div>
+      <p class="sub" style="margin:14px 0 0;">Iteration count: <strong id="figmaCount">1</strong> round</p>
+    </div>
+    <button class="btn-ghost" onclick="bumpFigma()">+ Simulate another comment round</button>
+    <br><br>
+    <button class="btn-primary" onclick="go('screen-devqa')">Client approves design (via CRM)</button>
+    <button class="btn-ghost" onclick="go('screen-design')">← Back</button>
+  </div>
+
+  <!-- SCREEN 8: Dev &amp; QA -->
+  <div class="screen" id="screen-devqa">
+    <h1>M1 · Development & QA</h1>
+    <p class="sub">Design approval moves the task into dev, then QA — both tracked in Hancod ONE. Client sees status only.</p>
+    <div class="panel">
+      <div class="milestone"><div><div class="m-name">🛠 Development</div><div class="m-sub">Complete</div></div><span class="tag tag-active">Done</span></div>
+      <div class="milestone"><div><div class="m-name">🧪 QA</div><div class="m-sub">Complete · no internal defects</div></div><span class="tag tag-active">Done</span></div>
+    </div>
+    <button class="btn-primary" onclick="go('screen-uat')">Hand off Milestone 1 to client for UAT</button>
+    <button class="btn-ghost" onclick="go('screen-figma')">← Back</button>
+  </div>
+
+  <!-- SCREEN 9: UAT -->
+  <div class="screen" id="screen-uat">
+    <h1>Milestone 1 — Client UAT</h1>
+    <p class="sub">Client tests and reports back <strong>through the CRM portal</strong>. SPTS/Hancod ONE picks it up from there — client never needs a separate login.</p>
+    <div class="panel" style="border:1px solid var(--accent);">
+      <span class="badge-hc" style="background:#2E5FA3;">⬡ In-house CRM — client portal — Anita Rao</span>
+      <h2 style="margin-top:14px;">Client feedback</h2>
+      <div class="row" style="margin-bottom:0;">
+        <div><label>Type</label><select id="uatType"><option>Bug</option><option>Enhancement</option><option>CR (Change Request)</option></select></div>
+        <div><label>Note</label><input id="uatNote" value="Stock count doesn't refresh after a sale"></div>
+      </div>
+      <button class="btn-ghost" onclick="addUat()">+ Add to list</button>
+      <div id="uatList" style="margin-top:14px;"></div>
+    </div>
+    <button class="btn-primary" onclick="go('screen-bugs')">Submit UAT feedback (from CRM)</button>
+    <button class="btn-ghost" onclick="go('screen-devqa')">← Back</button>
+  </div>
+
+  <!-- SCREEN 10: Bug assignment & resolution -->
+  <div class="screen" id="screen-bugs">
+    <h1>Tracked in Hancod ONE</h1>
+    <p class="sub">Each reported item becomes a task, auto-assigned to the right person. Client is notified again once it's resolved.</p>
+    <div class="panel" id="bugAssignPanel"></div>
+    <button class="btn-primary" onclick="resolveBugs()">Mark all resolved &amp; notify client</button>
+    <button class="btn-ghost" onclick="go('screen-uat')">← Back</button>
+  </div>
+
+  <!-- SCREEN 11: Milestone payment & approval -->
+  <div class="screen" id="screen-m1pay">
+    <div class="panel" style="text-align:center;padding:40px 24px;border:1px solid var(--accent);">
+      <span class="badge-hc" style="background:#2E5FA3;">⬡ In-house CRM — client portal — Anita Rao</span>
+      <h1 style="margin-top:16px;">Milestone 1 — Client approval & payment</h1>
+      <p class="sub">Approval and payment both happen inside the CRM — that's where invoicing already lives. SPTS just listens for the result.</p>
+      <div style="display:flex;gap:14px;justify-content:center;margin:24px 0;">
+        <span class="tag tag-sync">✓ Approved in CRM</span>
+        <span class="tag tag-sync">✓ Payment captured in CRM</span>
+      </div>
+      <div class="note" style="text-align:left;max-width:480px;margin:0 auto;">
+        CRM sends SPTS/Hancod ONE a "Milestone 1 — approved & paid" event. Milestone 2 unlocks automatically. Same CRM-portal pattern repeats for every milestone: client never approves or pays inside SPTS directly.
+      </div>
+      <br>
+      <button class="btn-primary" onclick="go('screen-project')">Back to project — Milestone 2 unlocked</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 12: Project vault -->
+  <div class="screen" id="screen-vault">
+    <h1>Project vault — Northbridge Retail</h1>
+    <p class="sub">One shared space, available the moment the project is created. Open to BA, design, dev, and QA — not just the dev team.</p>
+    <div class="panel">
+      <h2>Stored here</h2>
+      <div class="milestone"><div class="m-name">🔗 Client reference links & shared docs</div></div>
+      <div class="milestone"><div class="m-name">🧩 Tech stack, hosting & integration details</div></div>
+      <div class="milestone"><div class="m-name">🔐 Tool credentials — e.g. Supabase, GoDaddy</div></div>
+    </div>
+    <div class="panel">
+      <h2>Who can access</h2>
+      <table>
+        <tr><th>Team</th><th>Access</th></tr>
+        <tr><td>BA</td><td>View + add</td></tr>
+        <tr><td>Design</td><td>View + add</td></tr>
+        <tr><td>Dev</td><td>View + add + edit credentials</td></tr>
+        <tr><td>QA</td><td>View + add</td></tr>
+        <tr><td>Client</td><td>View only</td></tr>
+      </table>
+    </div>
+    <button class="btn-ghost" onclick="go('screen-project')">← Back to project</button>
+  </div>
+
+  <!-- SCREEN 13: Closure & AMC -->
+  <div class="screen" id="screen-closure">
+    <h1>Project closed — AMC begins</h1>
+    <p class="sub">After the final milestone is approved and paid, the client confirms project closure. That single action starts the AMC clock.</p>
+    <div class="panel">
+      <div class="milestone"><div><div class="m-name">✅ Client approved project closure</div></div></div>
+      <div class="milestone"><div><div class="m-name">📨 Notification sent</div><div class="m-sub">To client and internal team: "AMC period started"</div></div></div>
+    </div>
+    <div class="panel">
+      <h2>When AMC ends</h2>
+      <p class="sub" style="margin-bottom:14px;">Same pattern — a single notification, sent to both sides.</p>
+      <button class="btn-ghost" onclick="endAmc()">Simulate AMC end</button>
+      <div id="amcEndNote"></div>
+    </div>
+    <button class="btn-ghost" onclick="go('screen-project')">← Back to project</button>
+  </div>
+
+  <!-- SCREEN 14: CRM activity log -->
+  <div class="screen" id="screen-crm">
+    <h1>Anita Rao — Activity Log (CRM)</h1>
+    <p class="sub">CRM is the source of truth for the client and the place the client actually acts — approving documents, milestones, and paying. SPTS/Hancod ONE reads these events and drives the internal delivery work, then logs back to this same record.</p>
+    <div class="panel">
+      <div class="row" style="margin-bottom:14px;">
+        <div><label>Company</label><div style="font-size:14px;">Northbridge Retail</div></div>
+        <div><label>Deal stage</label><div class="tag tag-active" style="display:inline-block;">Active Client</div></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Stage history</h2>
+      <div class="milestone"><div class="m-name">🟡 New Lead</div><div class="m-sub">Added in CRM</div></div>
+      <div class="milestone"><div class="m-name">🟠 Proposal Sent</div><div class="m-sub">₹4,80,000 · 10 weeks</div></div>
+      <div class="milestone"><div class="m-name">🟢 Converted — Won</div><div class="m-sub">Project created in Hancod ONE</div></div>
+      <div class="milestone"><div class="m-name">🔵 Active Client</div><div class="m-sub">Milestone 1 approved &amp; paid</div></div>
+    </div>
+    <div class="panel">
+      <h2>Activity (auto-logged from Hancod ONE)</h2>
+      <div class="note">👤 Client record created — 12 Jun</div>
+      <div class="note">📄 Proposal sent — 12 Jun</div>
+      <div class="note">✅ Client approved proposal — 13 Jun</div>
+      <div class="note">🏗 Project created in Hancod ONE — 13 Jun</div>
+      <div class="note">📄 Task "Documentation" auto-assigned to BA — 13 Jun</div>
+      <div class="note">🎨 Design approved by client — 18 Jun (1 comment round)</div>
+      <div class="note">🐞 1 bug reported in UAT, resolved — 24 Jun</div>
+      <div class="note">💰 Milestone 1 payment received — 25 Jun</div>
+    </div>
+    <div class="note">⚠️ This connection depends on what our in-house CRM can currently support — a real-time API + webhooks (instant sync), an API only (periodic check, slightly delayed), or neither yet (dev team would need to build a few basic endpoints first: create customer, update deal stage, log activity). To be confirmed with the dev team before this becomes a working build.</div>
+    <br>
+    <button class="btn-ghost" onclick="go('screen-project')">← Back to project</button>
+  </div>
+
+  <div class="footer-link">Clickable mockup · no live data or backend connected</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const labels = {
+    'screen-customers':'CRM → Customers',
+    'screen-add-client':'CRM → Customers → Add client',
+    'screen-proposal':'CRM → Anita Rao → Proposal',
+    'screen-approval':'CRM → Anita Rao → Approval',
+    'screen-convert':'CRM → Converting to project…',
+    'screen-autotask':'Hancod ONE → Northbridge Retail → Auto-task',
+    'screen-project':'SPTS → Projects → Northbridge Retail',
+    'screen-design':'…→ M1 → Design',
+    'screen-figma':'…→ M1 → Figma review',
+    'screen-devqa':'…→ M1 → Dev &amp; QA',
+    'screen-uat':'…→ M1 → Client UAT',
+    'screen-bugs':'…→ M1 → Bug/CR tracking',
+    'screen-m1pay':'…→ M1 → Approval & payment',
+    'screen-vault':'SPTS → Projects → Northbridge Retail → Vault',
+    'screen-crm':'CRM → Anita Rao → Activity log',
+    'screen-closure':'SPTS → Projects → Northbridge Retail → Closure / AMC'
+  };
+  document.getElementById('crumbs').textContent = labels[id] || '';
+  window.scrollTo(0,0);
+}
+function convertLead(){ go('screen-convert'); }
+function completeTask(){
+  const notify = document.getElementById('notifyClient').checked;
+  go('screen-project');
+  showToast(notify ? 'Documentation task complete — client notified' : 'Documentation task complete — synced, client not notified');
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3200);
+}
+let figmaRounds = 1;
+function bumpFigma(){
+  figmaRounds++;
+  document.getElementById('figmaCount').textContent = figmaRounds;
+  showToast('Comment round ' + figmaRounds + ' logged against Milestone 1');
+}
+let uatItems = [];
+function addUat(){
+  const type = document.getElementById('uatType').value;
+  const note = document.getElementById('uatNote').value;
+  if(!note) return;
+  uatItems.push({type, note});
+  renderUat();
+  document.getElementById('uatNote').value = '';
+}
+function renderUat(){
+  document.getElementById('uatList').innerHTML = uatItems.map(i =>
+    '<div class="milestone"><div><div class="m-name">' + i.note + '</div></div><span class="tag tag-new">' + i.type + '</span></div>'
+  ).join('');
+}
+function resolveBugs(){
+  go('screen-m1pay');
+  showToast('All items resolved — client notified via Hancod ONE');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  addUat();
+});
+function buildBugPanel(){
+  const panel = document.getElementById('bugAssignPanel');
+  if(!panel) return;
+  const assignees = {Bug:'Dev — Rahul K.', Enhancement:'BA — Priya S.', 'CR (Change Request)':'BA — Priya S.'};
+  panel.innerHTML = '<h2>Auto-assigned in Hancod ONE</h2>' + uatItems.map(i =>
+    '<div class="milestone"><div><div class="m-name">' + i.note + '</div><div class="m-sub">Assigned to ' + (assignees[i.type]||'Dev team') + '</div></div><span class="tag tag-new">' + i.type + '</span></div>'
+  ).join('');
+}
+const origGo = go;
+go = function(id){
+  origGo(id);
+  if(id === 'screen-bugs') buildBugPanel();
+};
+function endAmc(){
+  document.getElementById('amcEndNote').innerHTML = '<div class="note">📨 Notification sent to client and internal team: "AMC period ended — project fully closed."</div>';
+}
+</script>
+</body>
+</html>
